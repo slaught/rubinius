@@ -84,17 +84,14 @@ class Rubinius::Backtrace
       color = show_color ? color_from_loc(pos, first) : ""
       first = false # special handling for first line
 
-      spaces = max - recv.size
-      spaces = 0 if spaces < 0
-
       if show_color and location.inlined?
-        start = " #{' ' * spaces}#{recv} #{@inline_effect}at#{clear}#{color} "
+        start = "    #{recv} #{@inline_effect}at#{clear}#{color} "
       else
-        start = " #{' ' * spaces}#{recv} at "
+        start = "    #{recv} at "
       end
 
       # start.size without the escapes
-      start_size = 1 + spaces + recv.size + 4
+      start_size = 1 + recv.size + 4
 
       line_break = @width - start_size - 1
       line_break = nil if line_break < @min_width
@@ -110,7 +107,7 @@ class Rubinius::Backtrace
         first = true
         parts.each do |part|
           if bit.size + part.size > line_break
-            new_pos << bit << "\n" << (' ' * indent)
+            new_pos << bit << "\n" << '    '
             bit = ""
           end
 
@@ -119,20 +116,16 @@ class Rubinius::Backtrace
           bit << part
         end
 
-        new_pos << bit
-        if bit.size + file.size > line_break
-          new_pos << "\n" << (' ' * indent)
-        end
-        new_pos << "/" << file
+        new_pos << "\n    #{bit}/#{file}"
         str << color
         str << start
         str << new_pos
         str << clear
       else
         if start_size > @width - @min_width
-          str << "#{color} #{start}\\\n          #{pos}#{clear}"
+          str << "#{color}#{start}\\\n          #{pos}#{clear}"
         else
-          str << "#{color} #{start}#{pos}#{clear}"
+          str << "#{color}#{start}#{pos}#{clear}"
         end
       end
 
